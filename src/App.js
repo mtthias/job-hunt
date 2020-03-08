@@ -10,12 +10,20 @@ class App extends Component {
       {
         id: 1,
         title: 'durchblicker.at',
-        status: 'invited'
+        status: 'invited',
+        weight: 2,
+      },
+      {
+        id: 3,
+        title: 'datenwerk',
+        status: 'invited',
+        weight: 1,
       },
       {
         id: 2,
         title: 'sportradar',
-        status: 'interviewed'
+        status: 'interviewed',
+        weight: 1,
       }
     ],
     form: {
@@ -61,7 +69,25 @@ class App extends Component {
   }
 
   handleDrag = result => {
+    const {destination, source, draggableId} = result
+
+    if(!destination) {
+      return
+    }
+
+    if(destination.droppableId == source.droppableId && destination.index == source.index) {
+      return
+    }
+
     console.log(result)
+    let jobs = [...this.state.jobs]
+    // get the current job
+    const currentJob = jobs.splice(jobs.findIndex(j => j.id === parseInt(draggableId)),1)
+    // get the jobs from the target status
+    console.log(jobs)
+    // this.state.filter(job => job.status === destination.droppableId)
+
+    
   }
 
   render() {
