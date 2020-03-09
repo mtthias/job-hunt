@@ -1,10 +1,10 @@
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd'
 
-const jobCard = ({ job, onDelete, onEdit, index }) => {
+const jobCard = ({ job, onDelete, onEdit, index, status }) => {
   return (
     <Draggable
-      draggableId={job.id.toString()}
+      draggableId={job.id}
       index={index}
     >
       {provided => (
@@ -15,8 +15,8 @@ const jobCard = ({ job, onDelete, onEdit, index }) => {
           {...provided.dragHandleProps}
         >
           <h3>{job.title}</h3>
-          <button onClick={() => onEdit(job)}>edit</button>
-          <button onClick={() => onDelete(job.id)}>delete</button>
+          <button onClick={() => onEdit(job, status)}>edit</button>
+          <button onClick={() => onDelete(job.id, status)}>delete</button>
         </article>
       )}
     </Draggable>

@@ -10,6 +10,7 @@ class jobForm extends Component {
       }
     } else {
       this.state = { ...props.form.job }
+      this.state.status = props.form.status
     }
   }
   render() {

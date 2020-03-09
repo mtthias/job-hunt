@@ -7,11 +7,12 @@ class jobList extends Component {
     const jobs = this.props.jobs.sort((a,b) => {
       return a.weight - b.weight
     })
+    const status = this.props.status
 
     return (
       <section className="job-list">
         <h2>{this.props.status}</h2>
-        <Droppable droppableId={this.props.status}>
+        <Droppable droppableId={status}>
           {provided => (
             <div
               ref={provided.innerRef}
@@ -22,7 +23,9 @@ class jobList extends Component {
                   index={index}
                   onEdit={this.props.onCardEdit} 
                   onDelete={this.props.onCardDelete} 
-                  key={job.id} job={job} />
+                  key={job.id} 
+                  job={job} 
+                  status={status}/>
               )}
               {provided.placeholder}
             </div>
