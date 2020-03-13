@@ -11,16 +11,19 @@ class App extends Component {
         id: 'job-1',
         title: 'durchblicker.at',
         status: 'invited',
+        ad: 'https://karriere.durchblicker.at/inserat?job=pdtfye0nqim3u1iz5tysjfo0s896uv3' 
       },
       'job-2': {
         id: 'job-2',
         title: 'datenwerk',
         status: 'invited',
+        ad: 'https://www.datenwerk.at/offene-stellen/'
       },
       'job-3': {
         id: 'job-3',
         title: 'sportradar',
         status: 'interviewed',
+        ad: 'https://sportradar.jacando.com/at/en/job/eqoaGQUz'
       }
     },
     form: {

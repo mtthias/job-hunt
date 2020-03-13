@@ -28,6 +28,8 @@ class jobForm extends Component {
         <option value="offered">offered</option>
         <option value="rejected">rejected</option>
       </select>
+      <lable htmlFor="ad">Link to job ad</lable>
+      <input type="text" value={this.state.ad} onChange={(e) => this.setState({ ad: e.target.value })} required name="ad" id="ad"/>
       <input type="submit" value="Add" />
       <button onClick={e => {
         e.preventDefault()
