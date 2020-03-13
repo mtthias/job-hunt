@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import JobManager from './components/jobManager'
 import JobForm from './components/jobForm'
 import './App.css'
@@ -6,44 +7,41 @@ import './App.css'
 class App extends Component {
   state = {
     appState: 'list',
-    jobs: {
-      'job-1': {
-        id: 'job-1',
-        title: 'durchblicker.at',
-        status: 'invited',
-        ad: 'https://karriere.durchblicker.at/inserat?job=pdtfye0nqim3u1iz5tysjfo0s896uv3' 
-      },
-      'job-2': {
-        id: 'job-2',
-        title: 'datenwerk',
-        status: 'invited',
-        ad: 'https://www.datenwerk.at/offene-stellen/'
-      },
-      'job-3': {
-        id: 'job-3',
-        title: 'sportradar',
-        status: 'interviewed',
-        ad: 'https://sportradar.jacando.com/at/en/job/eqoaGQUz'
-      }
-    },
     form: {
       job: null,
       status: 'accepted'
     },
-    statuses: {
-      'applied': ['job-1', 'job-2', 'job-3'],
-      'invited': [],
-      'interviewed': [],
-      'offered': [],
-      'rejected': []
-    },
-    statusOrder: [
-      'applied',
-      'invited',
-      'interviewed',
-      'offered',
-      'rejected'
-    ]
+    isLoaded: false
+  }
+
+  componentDidMount() {
+    axios.get("http://jha.mattcrn.at/state")
+      .then(
+        (result) => {
+          this.setState({
+            isLoaded: true,
+            ...result.data
+          });
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        (error) => {
+          this.updateState({
+            isLoaded: true,
+            error
+          })
+        }
+      )
+  }
+
+  updateState = (state) => {
+    this.setState(state)
+    const data = (({ jobs, statusOrder, statuses }) => ({ jobs, statusOrder, statuses }))(this.state)
+    axios.post('http://jha.mattcrn.at/state', data)
+      .catch(() => {
+        this.setState({ error: { message: 'We are not able to connect to the Backend Service!' } })
+      })
   }
 
   handleJobCardDelete = (id, status) => {
@@ -55,11 +53,11 @@ class App extends Component {
     const remainingJobs = statuses[status].filter(s => s !== id)
     // override the current status
     statuses[status] = remainingJobs
-    this.setState({ jobs, statuses })
+    this.updateState({ jobs, statuses })
   }
 
   handleJobEdit = (job, status) => {
-    this.setState({ form: { job, status }, appState: 'form' })
+    this.updateState({ form: { job, status }, appState: 'form' })
   }
 
   handleFormSubmit = (job) => {
@@ -74,16 +72,16 @@ class App extends Component {
       jobs[job.id] = job
       this.moveJob(job.id, null, job.status, 0)
     }
-    this.setState({ jobs, appState: 'list' })
+    this.updateState({ jobs, appState: 'list' })
     this.resetForm()
   }
 
   resetForm() {
-    this.setState({ form: { job: null, status: null } })
+    this.updateState({ form: { job: null, status: null } })
   }
 
   handleFormCancel = () => {
-    this.setState({ appState: 'list' })
+    this.updateState({ appState: 'list' })
     this.resetForm()
   }
 
@@ -98,7 +96,7 @@ class App extends Component {
       return
     }
     const statuses = this.moveJob(draggableId, source.droppableId, destination.droppableId, destination.index)
-    this.setState({ statuses })
+    this.updateState({ statuses })
   }
 
   /**
@@ -111,7 +109,7 @@ class App extends Component {
     // get the old state if not supplied
     if (fromState === null) {
       for (const status in statuses) {
-        if(statuses[status].indexOf(id) !== -1) {
+        if (statuses[status].indexOf(id) !== -1) {
           fromState = status
         }
       }
@@ -126,26 +124,33 @@ class App extends Component {
   }
 
   render() {
-    return (
-      <div className="App">
-        {this.state.appState === 'list' &&
-          <JobManager
-            statuses={this.state.statuses}
-            statusOrder={this.state.statusOrder}
-            onCardEdit={this.handleJobEdit}
-            onCardDelete={this.handleJobCardDelete}
-            onNewJob={() => this.setState({ appState: 'form' })}
-            onDragCard={this.handleDrag}
-            jobs={this.state.jobs} />
-        }
-        {this.state.appState === 'form' &&
-          <JobForm
-            onSubmit={this.handleFormSubmit}
-            onCancel={this.handleFormCancel}
-            form={this.state.form} />
-        }
-      </div>
-    );
+    const { error, isLoaded } = this.state;
+    if (error) {
+      return <div>Error: {error.message}</div>;
+    } else if (!isLoaded) {
+      return <div>Loading...</div>;
+    } else {
+      return (
+        <div className="App">
+          {this.state.appState === 'list' &&
+            <JobManager
+              statuses={this.state.statuses}
+              statusOrder={this.state.statusOrder}
+              onCardEdit={this.handleJobEdit}
+              onCardDelete={this.handleJobCardDelete}
+              onNewJob={() => this.updateState({ appState: 'form' })}
+              onDragCard={this.handleDrag}
+              jobs={this.state.jobs} />
+          }
+          {this.state.appState === 'form' &&
+            <JobForm
+              onSubmit={this.handleFormSubmit}
+              onCancel={this.handleFormCancel}
+              form={this.state.form} />
+          }
+        </div>
+      )
+    }
   }
 }
 

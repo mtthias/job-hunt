@@ -6,7 +6,8 @@ class jobForm extends Component {
     if (props.form.job === null) {
       this.state = {
         title: '',
-        status: 'applied'
+        status: 'applied',
+        ad: '',
       }
     } else {
       this.state = { ...props.form.job }
@@ -28,7 +29,7 @@ class jobForm extends Component {
         <option value="offered">offered</option>
         <option value="rejected">rejected</option>
       </select>
-      <lable htmlFor="ad">Link to job ad</lable>
+      <label htmlFor="ad">Link to job ad</label>
       <input type="text" value={this.state.ad} onChange={(e) => this.setState({ ad: e.target.value })} required name="ad" id="ad"/>
       <input type="submit" value="Add" />
       <button onClick={e => {
